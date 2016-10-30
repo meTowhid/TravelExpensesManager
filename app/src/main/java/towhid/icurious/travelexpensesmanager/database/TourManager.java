@@ -12,12 +12,14 @@ import towhid.icurious.travelexpensesmanager.dataModel.Tour;
 public class TourManager {
     private DatabaseHelper mHelper;
     private SQLiteDatabase mDatabase;
-    private String[] columns = {
+    private String[] tourColumns = {
             DatabaseHelper.COL_ID,
             DatabaseHelper.COL_TITLE,
             DatabaseHelper.COL_DESCRIPTION,
             DatabaseHelper.COL_GOING_DATE,
-            DatabaseHelper.COL_RETURN_DATE};
+            DatabaseHelper.COL_RETURN_DATE,
+            DatabaseHelper.COL_BUDGET,
+            DatabaseHelper.COL_TOTAL_EXPENSES};
 
     public TourManager(Context context) {
         mHelper = new DatabaseHelper(context);
@@ -38,6 +40,8 @@ public class TourManager {
         cv.put(DatabaseHelper.COL_DESCRIPTION, tour.getDescription());
         cv.put(DatabaseHelper.COL_GOING_DATE, tour.getGoingDate());
         cv.put(DatabaseHelper.COL_RETURN_DATE, tour.getReturnDate());
+        cv.put(DatabaseHelper.COL_BUDGET, tour.getBudget());
+        cv.put(DatabaseHelper.COL_TOTAL_EXPENSES, tour.getTotalExpenses());
 
         openDB();
         long inserted = mDatabase.insert(DatabaseHelper.TABLE_TOUR, null, cv);
@@ -49,7 +53,7 @@ public class TourManager {
         Tour tour = new Tour();
         openDB();
         Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_TOUR,
-                columns,
+                tourColumns,
                 DatabaseHelper.COL_ID + " =? ",
                 new String[]{String.valueOf(id)},
                 null, null, null);
@@ -61,6 +65,8 @@ public class TourManager {
             tour.setDescription(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_DESCRIPTION)));
             tour.setGoingDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_GOING_DATE)));
             tour.setReturnDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_RETURN_DATE)));
+            tour.setBudget(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_BUDGET))));
+            tour.setTotalExpenses(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES))));
             cursor.close();
         }
         closeDB();
@@ -69,7 +75,7 @@ public class TourManager {
 
     ArrayList<Tour> readTour() { // get list of tours from database
         ArrayList<Tour> list = new ArrayList<>();
-        Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_TOUR, columns, null, null, null, null, null);
+        Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_TOUR, tourColumns, null, null, null, null, null);
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
@@ -80,6 +86,8 @@ public class TourManager {
                 tour.setDescription(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_DESCRIPTION)));
                 tour.setGoingDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_GOING_DATE)));
                 tour.setReturnDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_RETURN_DATE)));
+                tour.setBudget(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_BUDGET))));
+                tour.setTotalExpenses(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES))));
                 list.add(tour);
             } while (cursor.moveToNext());
             cursor.close();
@@ -93,6 +101,8 @@ public class TourManager {
         cv.put(DatabaseHelper.COL_DESCRIPTION, tour.getDescription());
         cv.put(DatabaseHelper.COL_GOING_DATE, tour.getGoingDate());
         cv.put(DatabaseHelper.COL_RETURN_DATE, tour.getReturnDate());
+        cv.put(DatabaseHelper.COL_BUDGET, tour.getBudget());
+        cv.put(DatabaseHelper.COL_TOTAL_EXPENSES, tour.getTotalExpenses());
 
         openDB();
         int updated = mDatabase.update(DatabaseHelper.TABLE_TOUR, cv, DatabaseHelper.COL_ID + " = " + id, null);
@@ -106,5 +116,9 @@ public class TourManager {
         closeDB();
         return deleted > 0;
     }
+
+
+//    SELECT title,mem_name,Exp_amount FROM members INNER JOIN Expenses INNER JOIN Tour ON members.mem_id=Expenses.mem_id AND members.tour_id=Tour.tour_d
+
 
 }

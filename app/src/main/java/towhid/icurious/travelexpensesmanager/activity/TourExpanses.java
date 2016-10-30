@@ -9,6 +9,8 @@ import android.widget.TableRow;
 import android.widget.Toast;
 
 import towhid.icurious.travelexpensesmanager.R;
+import towhid.icurious.travelexpensesmanager.dataModel.Tour;
+import towhid.icurious.travelexpensesmanager.database.TourManager;
 
 public class TourExpanses extends AppCompatActivity {
     TableLayout table;
@@ -20,6 +22,9 @@ public class TourExpanses extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tour_expanses);
+
+        TourManager manager = new TourManager(this);
+        manager.createTour(new Tour("Hangout in Bandarban","description", "21 february","26 march", 0,0 ));
         table = (TableLayout) findViewById(R.id.tableLayout);
         buttonsGrid = new Button[ROW_NUM][COL_NUM];
 

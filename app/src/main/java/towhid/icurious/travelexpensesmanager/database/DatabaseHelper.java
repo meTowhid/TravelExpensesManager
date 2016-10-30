@@ -11,7 +11,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int VERSION_NO = 1;
 
     // tour table and columns declaration...
-    public static final String TABLE_TOUR = "table_tour";
+    public static final String TABLE_TOUR = "tour";
     public static final String COL_ID = "id";
     public static final String COL_TITLE = "title";
     public static final String COL_DESCRIPTION = "description";
@@ -31,14 +31,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // member table and columns declaration...
-    public static final String TABLE_MEMBER = "table_member";
+    public static final String TABLE_MEMBERS = "members";
     //    public static final String COL_ID = "id";
     public static final String COL_NAME = "name";
     public static final String COL_TOUR_ID = "tour_id";
     public static final String COL_DEPOSIT = "deposit";
     //    public static final String COL_TOTAL_EXPENSES = "total_expenses";
 
-    private static final String SQL_MEMBER_TABLE = "CREATE TABLE " + TABLE_MEMBER + " ( " +
+    private static final String SQL_MEMBER_TABLE = "CREATE TABLE " + TABLE_MEMBERS + " ( " +
             COL_ID + " INTEGER PRIMARY KEY, " +
             COL_NAME + " TEXT," +
             COL_TOUR_ID + " TEXT," +
@@ -47,19 +47,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // exp_field table and columns declaration...
-    public static final String TABLE_EXP_FIELD = "table_exp_field";
+    public static final String TABLE_EXP_FIELDS = "exp_fields";
     //    public static final String COL_ID = "id";
     //    public static final String COL_TITLE = "title";
     public static final String COL_AMOUNT = "amount";
 
-    private static final String SQL_EXP_FIELD_TABLE = "CREATE TABLE " + TABLE_EXP_FIELD + " ( " +
+    private static final String SQL_EXP_FIELD_TABLE = "CREATE TABLE " + TABLE_EXP_FIELDS + " ( " +
             COL_ID + " INTEGER PRIMARY KEY, " +
             COL_TITLE + " TEXT," +
             COL_AMOUNT + " TEXT)";
 
 
     // expenses table and columns declaration...
-    public static final String TABLE_EXPENSES = "table_expenses";
+    public static final String TABLE_EXPENSES = "expenses";
     //    public static final String COL_ID = "id";
     //    public static final String COL_TOUR_ID = "tour_id";
     public static final String COL_MEMBER_ID = "member_id";

@@ -17,6 +17,15 @@ public class Tour {
     public Tour() {
     }
 
+    public Tour( String title, String description, String goingDate, String returnDate, double budget, double totalExpenses) {
+        this.title = title;
+        this.description = description;
+        this.goingDate = goingDate;
+        this.returnDate = returnDate;
+        this.budget = budget;
+        this.totalExpenses = totalExpenses;
+    }
+
     public Tour(int id, String title, String description, String goingDate, String returnDate, double budget, double totalExpenses) {
         this.id = id;
         this.title = title;
