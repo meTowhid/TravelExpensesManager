@@ -7,6 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 
+import towhid.icurious.travelexpensesmanager.dataModel.ExpField;
+import towhid.icurious.travelexpensesmanager.dataModel.Expense;
+import towhid.icurious.travelexpensesmanager.dataModel.Member;
 import towhid.icurious.travelexpensesmanager.dataModel.Tour;
 
 public class TourManager {
@@ -21,6 +24,15 @@ public class TourManager {
             DatabaseHelper.COL_BUDGET,
             DatabaseHelper.COL_TOTAL_EXPENSES};
 
+    private String[] membersColumns = {
+            DatabaseHelper.COL_ID,
+            DatabaseHelper.COL_NAME,
+            DatabaseHelper.COL_TOUR_ID,
+            DatabaseHelper.COL_DEPOSIT,
+            DatabaseHelper.COL_TOTAL_EXPENSES};
+
+    private ArrayList<Tour> tourList;
+
     public TourManager(Context context) {
         mHelper = new DatabaseHelper(context);
     }
@@ -34,7 +46,7 @@ public class TourManager {
         mDatabase.close();
     }
 
-    public boolean createTour(Tour tour) {
+    public int createTour(Tour tour) {
         ContentValues cv = new ContentValues();
         cv.put(DatabaseHelper.COL_TITLE, tour.getTitle());
         cv.put(DatabaseHelper.COL_DESCRIPTION, tour.getDescription());
@@ -46,7 +58,8 @@ public class TourManager {
         openDB();
         long inserted = mDatabase.insert(DatabaseHelper.TABLE_TOUR, null, cv);
         closeDB();
-        return inserted > 0;
+
+        return (int) inserted;
     }
 
     public Tour readTour(int id) { // get single contact from database
@@ -73,7 +86,8 @@ public class TourManager {
         return tour;
     }
 
-    ArrayList<Tour> readTour() { // get list of tours from database
+    public ArrayList<Tour> getTourList() { // get list of tours from database
+        openDB();
         ArrayList<Tour> list = new ArrayList<>();
         Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_TOUR, tourColumns, null, null, null, null, null);
 
@@ -92,6 +106,7 @@ public class TourManager {
             } while (cursor.moveToNext());
             cursor.close();
         }
+        closeDB();
         return list;
     }
 
@@ -117,6 +132,66 @@ public class TourManager {
         return deleted > 0;
     }
 
+    public void addMemberToTour(Member m) {
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseHelper.COL_NAME, m.getName());
+        cv.put(DatabaseHelper.COL_TOUR_ID, m.getTour_id());
+        cv.put(DatabaseHelper.COL_DEPOSIT, m.getDeposit());
+        cv.put(DatabaseHelper.COL_TOTAL_EXPENSES, m.getTotalExpenses());
+
+        openDB();
+        mDatabase.insert(DatabaseHelper.TABLE_MEMBERS, null, cv);
+        closeDB();
+    }
+
+    public ArrayList<Member> getMembersByTourID(int tourID) {
+        openDB();
+        ArrayList<Member> list = new ArrayList<>();
+        Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_MEMBERS,
+                membersColumns,
+                DatabaseHelper.COL_TOUR_ID + " =? ",
+                new String[]{String.valueOf(tourID)},
+                null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                Member m = new Member();
+                m.setId(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COL_ID)));
+                m.setName(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_NAME)));
+                m.setTour_id(Integer.valueOf(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOUR_ID))));
+                m.setDeposit(Double.valueOf(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_DEPOSIT))));
+                m.setTotalExpenses(Double.valueOf(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES))));
+                list.add(m);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        closeDB();
+        return list;
+    }
+
+    public int addToExpField(ExpField field) {
+
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseHelper.COL_TITLE, field.getTitle());
+        cv.put(DatabaseHelper.COL_AMOUNT, field.getAmount());
+
+        openDB();
+        long inserted = mDatabase.insert(DatabaseHelper.TABLE_EXP_FIELDS, null, cv);
+        closeDB();
+        return (int) inserted;
+    }
+
+    public void addExpenseToTour(Expense e) {
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseHelper.COL_TOUR_ID, e.getTour_id());
+        cv.put(DatabaseHelper.COL_MEMBER_ID, e.getMember_id());
+        cv.put(DatabaseHelper.COL_EXP_FIELD_ID, e.getExp_field_id());
+
+        openDB();
+        mDatabase.insert(DatabaseHelper.TABLE_EXPENSES, null, cv);
+        closeDB();
+    }
 
 //    SELECT title,mem_name,Exp_amount FROM members INNER JOIN Expenses INNER JOIN Tour ON members.mem_id=Expenses.mem_id AND members.tour_id=Tour.tour_d
 

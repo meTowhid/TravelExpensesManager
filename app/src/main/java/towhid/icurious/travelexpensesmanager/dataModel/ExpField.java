@@ -13,6 +13,11 @@ public class ExpField {
     public ExpField() {
     }
 
+    public ExpField(String title, double amount) {
+        this.title = title;
+        this.amount = amount;
+    }
+
     public ExpField(int id, String title, double amount) {
         this.id = id;
         this.title = title;

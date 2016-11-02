@@ -36,6 +36,14 @@ public class Tour {
         this.totalExpenses = totalExpenses;
     }
 
+    public Tour(String title, String description, String goingDate, String returnDate, double budget) {
+        this.title = title;
+        this.description = description;
+        this.goingDate = goingDate;
+        this.returnDate = returnDate;
+        this.budget = budget;
+    }
+
     public int getId() {
         return id;
     }
