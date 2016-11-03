@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 
 import towhid.icurious.travelexpensesmanager.dataModel.ExpField;
+import towhid.icurious.travelexpensesmanager.dataModel.ExpRowItem;
 import towhid.icurious.travelexpensesmanager.dataModel.Expense;
 import towhid.icurious.travelexpensesmanager.dataModel.Member;
 import towhid.icurious.travelexpensesmanager.dataModel.Tour;
@@ -31,7 +32,6 @@ public class TourManager {
             DatabaseHelper.COL_DEPOSIT,
             DatabaseHelper.COL_TOTAL_EXPENSES};
 
-    private ArrayList<Tour> tourList;
 
     public TourManager(Context context) {
         mHelper = new DatabaseHelper(context);
@@ -62,7 +62,7 @@ public class TourManager {
         return (int) inserted;
     }
 
-    public Tour readTour(int id) { // get single contact from database
+    public Tour getTour(int id) { // get single contact from database
         Tour tour = new Tour();
         openDB();
         Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_TOUR,
@@ -125,11 +125,17 @@ public class TourManager {
         return updated > 0;
     }
 
-    public boolean deleteTour(int id) {
+    public void deleteTour(int id) {
         openDB();
-        int deleted = mDatabase.delete(DatabaseHelper.TABLE_TOUR, DatabaseHelper.COL_ID + " = " + id, null);
+        deleteExpFieldBtTourID(id);
+        mDatabase.delete(DatabaseHelper.TABLE_TOUR, DatabaseHelper.COL_ID + " = " + id, null);
+        mDatabase.delete(DatabaseHelper.TABLE_MEMBERS, DatabaseHelper.COL_TOUR_ID + " = " + id, null);
+        mDatabase.delete(DatabaseHelper.TABLE_EXPENSES, DatabaseHelper.COL_TOUR_ID + " = " + id, null);
         closeDB();
-        return deleted > 0;
+    }
+
+    private void deleteExpFieldBtTourID(int id) {
+        // TODO Delete expFields data according to their tour id...
     }
 
     public void addMemberToTour(Member m) {
@@ -170,6 +176,48 @@ public class TourManager {
         return list;
     }
 
+    private ExpField getExpFieldByID(String id) {
+        openDB();
+        ExpField e = new ExpField();
+        Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_EXP_FIELDS,
+                new String[]{DatabaseHelper.COL_TITLE, DatabaseHelper.COL_AMOUNT},
+                DatabaseHelper.COL_ID + " =? ",
+                new String[]{String.valueOf(id)},
+                null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            e.setTitle(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TITLE)));
+            e.setAmount(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_AMOUNT))));
+            cursor.close();
+        }
+        closeDB();
+        return e;
+
+    }
+
+    private Member getMemberByID(String id) {
+        openDB();
+        Member m = new Member();
+        Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_MEMBERS,
+                membersColumns,
+                DatabaseHelper.COL_ID + " =? ",
+                new String[]{id},
+                null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            m.setId(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COL_ID)));
+            m.setName(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_NAME)));
+            m.setTour_id(Integer.valueOf(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOUR_ID))));
+            m.setDeposit(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_DEPOSIT))));
+            m.setTotalExpenses(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES))));
+            cursor.close();
+        }
+        closeDB();
+        return m;
+    }
+
     public int addToExpField(ExpField field) {
 
         ContentValues cv = new ContentValues();
@@ -193,7 +241,41 @@ public class TourManager {
         closeDB();
     }
 
-//    SELECT title,mem_name,Exp_amount FROM members INNER JOIN Expenses INNER JOIN Tour ON members.mem_id=Expenses.mem_id AND members.tour_id=Tour.tour_d
+    public ArrayList<ExpRowItem> getExpRowItemsByTourID(int tourID) {
+        openDB();
+        ArrayList<ExpRowItem> list = new ArrayList<>();
+
+        Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_EXPENSES,
+                new String[]{DatabaseHelper.COL_MEMBER_ID, DatabaseHelper.COL_EXP_FIELD_ID},
+                DatabaseHelper.COL_TOUR_ID + " =? ",
+                new String[]{String.valueOf(tourID)},
+                null, null, null);
+
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            do {
+                Member m = getMemberByID(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_MEMBER_ID)));
+                ExpField e = getExpFieldByID(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_EXP_FIELD_ID)));
+
+                list.add(new ExpRowItem(m, e));
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
+        closeDB();
+        return list;
+    }
+
+    public void calculateCostOfMembers(int id) {
+
+    }
+
+    /*
+             private final String MY_QUERY = "SELECT * FROM table_a a INNER JOIN table_b b ON a.id=b.other_id WHERE b.property_id=?";
+            db.rawQuery(MY_QUERY, new String[]{String.valueOf(propertyId)});
+
+            Cursor curs = mDatabase.rawQuery("SELECT member_id, title, amount FROM expenses INNER JOIN exp_fields ON expenses.exp_field_id=exp_fields.id", new String[]{String.valueOf()});
 
 
+            Cursor c = mDatabase.rawQuery("SELECT member_id, title, amount FROM expenses INNER JOIN exp_fields ON expenses.exp_field_id = exp_fields.id", null);
+    */
 }

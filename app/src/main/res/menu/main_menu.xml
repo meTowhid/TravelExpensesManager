@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_createTour"
-        android:icon="@drawable/ic_add_circle_outline_black_24dp"
+        android:icon="@drawable/ic_add_black_24dp"
         android:title="Create tour"
         app:showAsAction="always" />
 </menu>

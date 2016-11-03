@@ -18,6 +18,11 @@ public class Member {
         this.name = name;
     }
 
+    public Member(String name, int tour_id) {
+        this.name = name;
+        this.tour_id = tour_id;
+    }
+
     public Member(String name, int tour_id, double totalExpenses, double deposit) {
         this.name = name;
         this.tour_id = tour_id;

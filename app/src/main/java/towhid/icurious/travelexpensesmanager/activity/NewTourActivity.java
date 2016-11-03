@@ -1,12 +1,16 @@
 package towhid.icurious.travelexpensesmanager.activity;
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -20,7 +24,6 @@ import towhid.icurious.travelexpensesmanager.R;
 import towhid.icurious.travelexpensesmanager.dataModel.Member;
 import towhid.icurious.travelexpensesmanager.dataModel.Tour;
 import towhid.icurious.travelexpensesmanager.database.TourManager;
-import towhid.icurious.travelexpensesmanager.utils.Cons;
 
 public class NewTourActivity extends AppCompatActivity {
     private ListView membersListView;
@@ -31,9 +34,9 @@ public class NewTourActivity extends AppCompatActivity {
     private TextView tv_goingDate;
     private TextView tv_returnDate;
 
-    private ArrayList<Member> memberArrayList;
-    private MemberAdapter adapter;
+    private ArrayAdapter<String> adapter;
     private TourManager manager;
+    private ArrayList<String> names;
 
 
     @Override
@@ -51,9 +54,29 @@ public class NewTourActivity extends AppCompatActivity {
         et_memberName = (EditText) findViewById(R.id.memberName);
 
         membersListView = (ListView) findViewById(R.id.membersList);
-        memberArrayList = new ArrayList<>();
-        adapter = new MemberAdapter(NewTourActivity.this, memberArrayList);
+        names = new ArrayList<>();
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
         membersListView.setAdapter(adapter);
+
+        membersListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
+                final int i = index;
+                AlertDialog.Builder builder = new AlertDialog.Builder(NewTourActivity.this)
+                        .setTitle("Remove member?")
+                        .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int j) {
+                                adapter.remove(names.get(i));
+                                Toast.makeText(NewTourActivity.this, adapter.getItem(i) + " removed!", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("Cancel", null);
+
+                builder.create().show();
+                return true;
+            }
+        });
 
         manager = new TourManager(this);
 
@@ -63,7 +86,6 @@ public class NewTourActivity extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
-                // TODO Auto-generated method stub
                 myCalendar.set(java.util.Calendar.YEAR, year);
                 myCalendar.set(java.util.Calendar.MONTH, monthOfYear);
                 myCalendar.set(java.util.Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -89,7 +111,6 @@ public class NewTourActivity extends AppCompatActivity {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear,
                                   int dayOfMonth) {
-                // TODO Auto-generated method stub
                 myCalendar.set(java.util.Calendar.YEAR, year);
                 myCalendar.set(java.util.Calendar.MONTH, monthOfYear);
                 myCalendar.set(java.util.Calendar.DAY_OF_MONTH, dayOfMonth);
@@ -110,8 +131,6 @@ public class NewTourActivity extends AppCompatActivity {
                         myCalendar.get(java.util.Calendar.DAY_OF_MONTH)).show();
             }
         });
-
-
     }
 
     @Override
@@ -126,12 +145,6 @@ public class NewTourActivity extends AppCompatActivity {
             case R.id.action_saveData:
                 saveData();
                 return true;
-           /* case R.id.action_exit:
-                // Exit option clicked.
-                return true;
-            case R.id.action_settings:
-                // Settings option clicked.
-                return true;*/
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -148,7 +161,7 @@ public class NewTourActivity extends AppCompatActivity {
             Toast.makeText(NewTourActivity.this, "Title can't be empty!", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (memberArrayList.size() == 0) {
+        if (names.size() == 0) {
             Toast.makeText(NewTourActivity.this, "At least one member must be added!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -158,14 +171,11 @@ public class NewTourActivity extends AppCompatActivity {
 
         int tourRow_id = manager.createTour(tour); // inserting Tour To Database
 
-        for (Member m : memberArrayList) {// add members to database
-            m.setTour_id(tourRow_id);
-            manager.addMemberToTour(m);
+        for (String name : names) {// add members to database
+            manager.addMemberToTour(new Member(name, tourRow_id));
         }
-        startActivity(new Intent(NewTourActivity.this, TourExpanses.class).putExtra(Cons.TOUR_ID, tourRow_id));
+        startActivity(new Intent(NewTourActivity.this, TourExpanses.class).putExtra("tourRowID", tourRow_id));
         finish();
-
-
     }
 
     public void addMember(View view) {
@@ -174,7 +184,7 @@ public class NewTourActivity extends AppCompatActivity {
             Toast.makeText(NewTourActivity.this, "Enter a name", Toast.LENGTH_SHORT).show();
             return;
         }
-        adapter.add(new Member(name));
+        adapter.add(name);
         et_memberName.getText().clear();
     }
 

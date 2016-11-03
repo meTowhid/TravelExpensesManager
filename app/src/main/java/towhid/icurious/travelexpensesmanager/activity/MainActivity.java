@@ -1,7 +1,11 @@
 package towhid.icurious.travelexpensesmanager.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,7 +19,6 @@ import java.util.ArrayList;
 import towhid.icurious.travelexpensesmanager.R;
 import towhid.icurious.travelexpensesmanager.dataModel.Tour;
 import towhid.icurious.travelexpensesmanager.database.TourManager;
-import towhid.icurious.travelexpensesmanager.utils.Cons;
 
 public class MainActivity extends AppCompatActivity {
     private ListView lv;
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        final CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
         lv = (ListView) findViewById(R.id.tourList);
         manager = new TourManager(this);
         names = new ArrayList<>();
@@ -39,7 +43,29 @@ public class MainActivity extends AppCompatActivity {
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                startActivity(new Intent(MainActivity.this, TourExpanses.class).putExtra(Cons.TOUR_ID, tours.get(i).getId()));
+                startActivity(new Intent(MainActivity.this, TourExpanses.class).putExtra("tourRowID", tours.get(i).getId()));
+            }
+        });
+
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
+                final int i = index;
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Delete!")
+                        .setMessage("Are you sure?")
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int j) {
+                                adapter.remove(names.get(i));
+                                manager.deleteTour(tours.get(i).getId());
+                                Snackbar.make(coordinatorLayout, "Tour deleted!", Snackbar.LENGTH_SHORT).show();
+                            }
+                        })
+                        .setNegativeButton("no", null);
+
+                builder.create().show();
+                return true;
             }
         });
     }

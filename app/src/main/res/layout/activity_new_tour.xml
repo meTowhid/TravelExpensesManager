@@ -61,9 +61,9 @@
         android:layout_height="wrap_content"
         android:drawableLeft="@drawable/ic_bdt"
         android:drawablePadding="15sp"
+        android:maxLines="1"
         android:hint="Budget"
-        android:inputType="numberDecimal"
-        android:maxLines="1" />
+        android:inputType="numberDecimal" />
 
     <LinearLayout
         android:layout_width="match_parent"

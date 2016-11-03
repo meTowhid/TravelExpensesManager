@@ -17,7 +17,7 @@ public class Tour {
     public Tour() {
     }
 
-    public Tour( String title, String description, String goingDate, String returnDate, double budget, double totalExpenses) {
+    public Tour(String title, String description, String goingDate, String returnDate, double budget, double totalExpenses) {
         this.title = title;
         this.description = description;
         this.goingDate = goingDate;
@@ -106,5 +106,15 @@ public class Tour {
 
     public void setMembers(ArrayList<Member> members) {
         this.members = members;
+    }
+
+    @Override
+    public String toString() {
+        String u = "Undefined";
+        return "Title: " + title + "\n" +
+                "Description: " + (description.isEmpty() ? u : description) + "\n" +
+                "Departure date: " + (goingDate.equals("Departure") ? u : goingDate) + "\n" +
+                "Return date: " + (returnDate.equals("Return") ? u : returnDate) + "\n" +
+                "Budget: " + (budget == 0.0 ? u : budget);
     }
 }
