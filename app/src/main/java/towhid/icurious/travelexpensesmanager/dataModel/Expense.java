@@ -11,17 +11,7 @@ public class Expense {
     private int member_id;
     private int exp_field_id;
 
-    public Expense() {
-    }
-
     public Expense(int tour_id, int member_id, int exp_field_id) {
-        this.tour_id = tour_id;
-        this.member_id = member_id;
-        this.exp_field_id = exp_field_id;
-    }
-
-    public Expense(int id, int tour_id, int member_id, int exp_field_id) {
-        this.id = id;
         this.tour_id = tour_id;
         this.member_id = member_id;
         this.exp_field_id = exp_field_id;

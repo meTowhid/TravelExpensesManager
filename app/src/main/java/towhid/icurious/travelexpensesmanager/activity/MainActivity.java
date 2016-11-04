@@ -3,8 +3,10 @@ package towhid.icurious.travelexpensesmanager.activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -21,24 +23,31 @@ import towhid.icurious.travelexpensesmanager.dataModel.Tour;
 import towhid.icurious.travelexpensesmanager.database.TourManager;
 
 public class MainActivity extends AppCompatActivity {
+    boolean doubleBackToExitPressedOnce = false;
     private ListView lv;
     private ArrayAdapter<String> adapter;
     private TourManager manager;
     private ArrayList<Tour> tours;
     private ArrayList<String> names;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final CoordinatorLayout coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+        /*ActionBar actionBar = getSupportActionBar();
+        actionBar.setLogo(R.drawable.logo);
+        actionBar.setDisplayUseLogoEnabled(true);
+        actionBar.setDisplayShowHomeEnabled(true);*/
+
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.mainCoordinator);
         lv = (ListView) findViewById(R.id.tourList);
         manager = new TourManager(this);
         names = new ArrayList<>();
 
         refreshList();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
+        adapter = new ArrayAdapter<>(this, R.layout.row_tour_list, R.id.row_tourName, names);
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -46,13 +55,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, TourExpanses.class).putExtra("tourRowID", tours.get(i).getId()));
             }
         });
+        if (tours.isEmpty()) findViewById(R.id.emptyView).setVisibility(View.VISIBLE);
+        else findViewById(R.id.emptyView).setVisibility(View.GONE);
 
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
                 final int i = index;
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Delete!")
+                        .setTitle("Delete tour!")
                         .setMessage("Are you sure?")
                         .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
@@ -82,27 +93,45 @@ public class MainActivity extends AppCompatActivity {
         for (Tour t : tours) names.add(t.getTitle());
     }
 
+    public void fabClicked(View view) {
+        startActivity(new Intent(MainActivity.this, NewTourActivity.class));
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_createTour:
-                startActivity(new Intent(MainActivity.this, NewTourActivity.class));
+            case R.id.action_about:
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+                        .setView(R.layout.about_layout)
+                        .setPositiveButton("ok", null);
+                builder.create().show();
                 return true;
-           /* case R.id.action_exit:
-                // Exit option clicked.
-                return true;
-            case R.id.action_settings:
-                // Settings option clicked.
-                return true;*/
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Snackbar.make(coordinatorLayout, "Press again to exit", Snackbar.LENGTH_SHORT).show();
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce = false;
+            }
+        }, 2000);
+    }
 }

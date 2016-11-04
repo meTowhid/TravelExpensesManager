@@ -5,27 +5,27 @@ package towhid.icurious.travelexpensesmanager.dataModel;
  */
 
 public class ExpRowItem {
-    private Member members;
-    private ExpField expFields;
+    private Member member;
+    private ExpField expField;
 
-    public ExpRowItem(Member members, ExpField expFields) {
-        this.members = members;
-        this.expFields = expFields;
+    public ExpRowItem(Member member, ExpField expField) {
+        this.member = member;
+        this.expField = expField;
     }
 
-    public Member getMembers() {
-        return members;
+    public Member getMember() {
+        return member;
     }
 
-    public void setMembers(Member members) {
-        this.members = members;
+    public void setMember(Member member) {
+        this.member = member;
     }
 
-    public ExpField getExpFields() {
-        return expFields;
+    public ExpField getExpField() {
+        return expField;
     }
 
-    public void setExpFields(ExpField expFields) {
-        this.expFields = expFields;
+    public void setExpField(ExpField expField) {
+        this.expField = expField;
     }
 }

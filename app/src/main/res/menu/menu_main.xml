@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/action_createTour"
-        android:icon="@drawable/ic_add_black_24dp"
-        android:title="Create tour"
-        app:showAsAction="always" />
+        android:id="@+id/action_about"
+        android:title="about"
+        app:showAsAction="never" />
 </menu>

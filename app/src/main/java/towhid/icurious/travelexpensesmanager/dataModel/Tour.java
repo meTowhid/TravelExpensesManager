@@ -1,6 +1,7 @@
 package towhid.icurious.travelexpensesmanager.dataModel;
 
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class Tour {
@@ -15,25 +16,6 @@ public class Tour {
     private ArrayList<Member> members;
 
     public Tour() {
-    }
-
-    public Tour(String title, String description, String goingDate, String returnDate, double budget, double totalExpenses) {
-        this.title = title;
-        this.description = description;
-        this.goingDate = goingDate;
-        this.returnDate = returnDate;
-        this.budget = budget;
-        this.totalExpenses = totalExpenses;
-    }
-
-    public Tour(int id, String title, String description, String goingDate, String returnDate, double budget, double totalExpenses) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.goingDate = goingDate;
-        this.returnDate = returnDate;
-        this.budget = budget;
-        this.totalExpenses = totalExpenses;
     }
 
     public Tour(String title, String description, String goingDate, String returnDate, double budget) {
@@ -110,11 +92,12 @@ public class Tour {
 
     @Override
     public String toString() {
+        DecimalFormat nf = new DecimalFormat("#.##");
         String u = "Undefined";
         return "Title: " + title + "\n" +
                 "Description: " + (description.isEmpty() ? u : description) + "\n" +
                 "Departure date: " + (goingDate.equals("Departure") ? u : goingDate) + "\n" +
                 "Return date: " + (returnDate.equals("Return") ? u : returnDate) + "\n" +
-                "Budget: " + (budget == 0.0 ? u : budget);
+                "Budget: " + (budget == 0.0 ? u : nf.format(budget)) + " tk";
     }
 }

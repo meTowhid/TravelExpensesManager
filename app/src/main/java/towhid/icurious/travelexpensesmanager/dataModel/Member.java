@@ -14,28 +14,10 @@ public class Member {
     public Member() {
     }
 
-    public Member(String name) {
-        this.name = name;
-    }
 
     public Member(String name, int tour_id) {
         this.name = name;
         this.tour_id = tour_id;
-    }
-
-    public Member(String name, int tour_id, double totalExpenses, double deposit) {
-        this.name = name;
-        this.tour_id = tour_id;
-        this.totalExpenses = totalExpenses;
-        this.deposit = deposit;
-    }
-
-    public Member(int id, String name, int tour_id, double totalExpenses, double deposit) {
-        this.id = id;
-        this.name = name;
-        this.tour_id = tour_id;
-        this.totalExpenses = totalExpenses;
-        this.deposit = deposit;
     }
 
     public int getId() {

@@ -78,8 +78,8 @@ public class TourManager {
             tour.setDescription(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_DESCRIPTION)));
             tour.setGoingDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_GOING_DATE)));
             tour.setReturnDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_RETURN_DATE)));
-            tour.setBudget(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_BUDGET))));
-            tour.setTotalExpenses(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES))));
+            tour.setBudget(cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.COL_BUDGET)));
+            tour.setTotalExpenses(cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES)));
             cursor.close();
         }
         closeDB();
@@ -100,8 +100,8 @@ public class TourManager {
                 tour.setDescription(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_DESCRIPTION)));
                 tour.setGoingDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_GOING_DATE)));
                 tour.setReturnDate(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_RETURN_DATE)));
-                tour.setBudget(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_BUDGET))));
-                tour.setTotalExpenses(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES))));
+                tour.setBudget(cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.COL_BUDGET)));
+                tour.setTotalExpenses(cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES)));
                 list.add(tour);
             } while (cursor.moveToNext());
             cursor.close();
@@ -180,15 +180,16 @@ public class TourManager {
         openDB();
         ExpField e = new ExpField();
         Cursor cursor = mDatabase.query(DatabaseHelper.TABLE_EXP_FIELDS,
-                new String[]{DatabaseHelper.COL_TITLE, DatabaseHelper.COL_AMOUNT},
+                new String[]{DatabaseHelper.COL_ID, DatabaseHelper.COL_TITLE, DatabaseHelper.COL_AMOUNT},
                 DatabaseHelper.COL_ID + " =? ",
                 new String[]{String.valueOf(id)},
                 null, null, null);
 
         if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
+            e.setId(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COL_ID)));
             e.setTitle(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TITLE)));
-            e.setAmount(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_AMOUNT))));
+            e.setAmount(cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.COL_AMOUNT)));
             cursor.close();
         }
         closeDB();
@@ -210,8 +211,8 @@ public class TourManager {
             m.setId(cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COL_ID)));
             m.setName(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_NAME)));
             m.setTour_id(Integer.valueOf(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOUR_ID))));
-            m.setDeposit(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_DEPOSIT))));
-            m.setTotalExpenses(Double.parseDouble(cursor.getString(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES))));
+            m.setDeposit(cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.COL_DEPOSIT)));
+            m.setTotalExpenses(cursor.getDouble(cursor.getColumnIndex(DatabaseHelper.COL_TOTAL_EXPENSES)));
             cursor.close();
         }
         closeDB();
@@ -265,8 +266,36 @@ public class TourManager {
         return list;
     }
 
-    public void calculateCostOfMembers(int id) {
+    public boolean updateMember(Member m) {
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseHelper.COL_NAME, m.getName());
+//        cv.put(DatabaseHelper.COL_TOUR_ID, m.getTour_id());
+        cv.put(DatabaseHelper.COL_DEPOSIT, m.getDeposit());
+        cv.put(DatabaseHelper.COL_TOTAL_EXPENSES, m.getTotalExpenses());
 
+        openDB();
+        int updated = mDatabase.update(DatabaseHelper.TABLE_MEMBERS, cv, DatabaseHelper.COL_ID + " = " + m.getId(), null);
+        closeDB();
+        return updated > 0;
+    }
+
+    public void updateMembersCost(int id, double updatedCost) {
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseHelper.COL_AMOUNT, updatedCost);
+
+        openDB();
+        mDatabase.update(DatabaseHelper.TABLE_EXP_FIELDS, cv, DatabaseHelper.COL_ID + " = " + id, null);
+        closeDB();
+
+    }
+
+    public void clearCostRow(int id) {
+        openDB();
+        String deleteSQL = "DELETE FROM expenses exp_field WHERE expenses.exp_field_id = exp_field.id AND exp_field.id = '1'";
+        mDatabase.execSQL(deleteSQL);
+        mDatabase.delete(DatabaseHelper.TABLE_EXP_FIELDS, DatabaseHelper.COL_ID + " = " + id, null);
+        mDatabase.delete(DatabaseHelper.TABLE_EXPENSES, DatabaseHelper.COL_EXP_FIELD_ID + " = " + id, null);
+        closeDB();
     }
 
     /*

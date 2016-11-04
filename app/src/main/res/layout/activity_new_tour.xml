@@ -85,7 +85,8 @@
             android:layout_height="wrap_content"
             android:background="#00ffffff"
             android:onClick="addMember"
-            android:src="@android:drawable/ic_input_add" />
+            android:tint="#aaa"
+            android:src="@drawable/ic_add_black_24dp" />
     </LinearLayout>
 
     <ListView

@@ -18,12 +18,6 @@ public class ExpField {
         this.amount = amount;
     }
 
-    public ExpField(int id, String title, double amount) {
-        this.id = id;
-        this.title = title;
-        this.amount = amount;
-    }
-
     public int getId() {
         return id;
     }

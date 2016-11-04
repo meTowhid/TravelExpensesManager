@@ -17,8 +17,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 import towhid.icurious.travelexpensesmanager.R;
 import towhid.icurious.travelexpensesmanager.dataModel.Member;
@@ -37,6 +39,7 @@ public class NewTourActivity extends AppCompatActivity {
     private ArrayAdapter<String> adapter;
     private TourManager manager;
     private ArrayList<String> names;
+    private Calendar myCalendar;
 
 
     @Override
@@ -63,12 +66,13 @@ public class NewTourActivity extends AppCompatActivity {
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int index, long l) {
                 final int i = index;
                 AlertDialog.Builder builder = new AlertDialog.Builder(NewTourActivity.this)
-                        .setTitle("Remove member?")
+                        .setMessage("Remove " + names.get(i) + " ?")
                         .setPositiveButton("Remove", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int j) {
-                                adapter.remove(names.get(i));
-                                Toast.makeText(NewTourActivity.this, adapter.getItem(i) + " removed!", Toast.LENGTH_SHORT).show();
+                                String name = names.get(i);
+                                adapter.remove(name);
+                                Toast.makeText(NewTourActivity.this, name + " removed!", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .setNegativeButton("Cancel", null);
@@ -80,7 +84,7 @@ public class NewTourActivity extends AppCompatActivity {
 
         manager = new TourManager(this);
 
-        final Calendar myCalendar = java.util.Calendar.getInstance();
+        myCalendar = java.util.Calendar.getInstance();
 
         final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
             @Override
@@ -89,9 +93,7 @@ public class NewTourActivity extends AppCompatActivity {
                 myCalendar.set(java.util.Calendar.YEAR, year);
                 myCalendar.set(java.util.Calendar.MONTH, monthOfYear);
                 myCalendar.set(java.util.Calendar.DAY_OF_MONTH, dayOfMonth);
-
-                long dateLong = myCalendar.get(Calendar.YEAR) * 10000 + (myCalendar.get(Calendar.MONTH) + 1) * 100 + myCalendar.get(Calendar.DATE);
-                tv_goingDate.setText("" + dateLong);
+                updateDate(tv_goingDate);
             }
         };
 
@@ -114,9 +116,7 @@ public class NewTourActivity extends AppCompatActivity {
                 myCalendar.set(java.util.Calendar.YEAR, year);
                 myCalendar.set(java.util.Calendar.MONTH, monthOfYear);
                 myCalendar.set(java.util.Calendar.DAY_OF_MONTH, dayOfMonth);
-
-                long dateLong = myCalendar.get(Calendar.YEAR) * 10000 + (myCalendar.get(Calendar.MONTH) + 1) * 100 + myCalendar.get(Calendar.DATE);
-                tv_returnDate.setText("" + dateLong);
+                updateDate(tv_returnDate);
             }
         };
 
@@ -133,9 +133,16 @@ public class NewTourActivity extends AppCompatActivity {
         });
     }
 
+
+    void updateDate(TextView tv) {
+        String myFormat = "EEE, MMM d"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        tv.setText(sdf.format(myCalendar.getTime()));
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.new_tour_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_new_tour, menu);
         return true;
     }
 
@@ -151,13 +158,13 @@ public class NewTourActivity extends AppCompatActivity {
     }
 
     private void saveData() {
-        String title = et_title.getText().toString().trim();
+        String t = et_title.getText().toString().trim();
         String desc = et_description.getText().toString().trim();
         String budget = et_budget.getText().toString().trim();
         String goingDate = tv_goingDate.getText().toString().trim(); // TODO this should be taken from date variable
         String returnDate = tv_returnDate.getText().toString().trim(); // TODO this should be taken from date variable
 
-        if (title.isEmpty()) {
+        if (t.isEmpty()) {
             Toast.makeText(NewTourActivity.this, "Title can't be empty!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -167,6 +174,7 @@ public class NewTourActivity extends AppCompatActivity {
         }
 
         budget = budget.isEmpty() ? "0" : budget;
+        String title = t.substring(0, 1).toUpperCase() + t.substring(1);
         Tour tour = new Tour(title, desc, goingDate, returnDate, Double.valueOf(budget));
 
         int tourRow_id = manager.createTour(tour); // inserting Tour To Database
