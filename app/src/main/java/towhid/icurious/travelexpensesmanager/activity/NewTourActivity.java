@@ -1,5 +1,6 @@
 package towhid.icurious.travelexpensesmanager.activity;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -182,7 +183,9 @@ public class NewTourActivity extends AppCompatActivity {
         for (String name : names) {// add members to database
             manager.addMemberToTour(new Member(name, tourRow_id));
         }
-        startActivity(new Intent(NewTourActivity.this, TourExpanses.class).putExtra("tourRowID", tourRow_id));
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("tourRowID", tourRow_id);
+        setResult(RESULT_OK,returnIntent);
         finish();
     }
 

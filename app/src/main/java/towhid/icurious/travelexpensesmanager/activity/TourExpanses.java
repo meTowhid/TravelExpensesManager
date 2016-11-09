@@ -171,9 +171,9 @@ public class TourExpanses extends AppCompatActivity {
         final int fCol = col;
 
         if (row == 0) {
-            if (col == 0) { // summery clicked
+            if (col == 0) { // summary clicked
                 AlertDialog.Builder builder = new AlertDialog.Builder(TourExpanses.this)
-                        .setTitle("Summery")
+                        .setTitle("Summary")
                         .setMessage(manager.getTour(tourRow_id).toString())
                         .setPositiveButton("ok", null);
 

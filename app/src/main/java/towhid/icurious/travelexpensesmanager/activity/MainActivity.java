@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -36,19 +35,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*ActionBar actionBar = getSupportActionBar();
-        actionBar.setLogo(R.drawable.logo);
-        actionBar.setDisplayUseLogoEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);*/
-
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.mainCoordinator);
         lv = (ListView) findViewById(R.id.tourList);
         manager = new TourManager(this);
         names = new ArrayList<>();
 
         refreshList();
-        adapter = new ArrayAdapter<>(this, R.layout.row_tour_list, R.id.row_tourName, names);
-        lv.setAdapter(adapter);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -70,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialogInterface, int j) {
                                 adapter.remove(names.get(i));
                                 manager.deleteTour(tours.get(i).getId());
+                                refreshList();
                                 Snackbar.make(coordinatorLayout, "Tour deleted!", Snackbar.LENGTH_SHORT).show();
                             }
                         })
@@ -81,20 +74,18 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        refreshList();
-    }
 
     private void refreshList() {
         tours = manager.getTourList();
         names.clear();
         for (Tour t : tours) names.add(t.getTitle());
+
+        adapter = new ArrayAdapter<>(this, R.layout.row_tour_list, R.id.row_tourName, names);
+        lv.setAdapter(adapter);
     }
 
     public void fabClicked(View view) {
-        startActivity(new Intent(MainActivity.this, NewTourActivity.class));
+        startActivityForResult(new Intent(MainActivity.this, NewTourActivity.class), 1);
     }
 
     @Override
@@ -116,6 +107,21 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                int tourRowID = data.getIntExtra("tourRowID", 1);
+                adapter.add(manager.getTour(tourRowID).getTitle());
+                Snackbar.make(coordinatorLayout, "New tour created!", Snackbar.LENGTH_SHORT).show();
+            }
+            if (resultCode == RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+    }//onActivityResult
 
     @Override
     public void onBackPressed() {
